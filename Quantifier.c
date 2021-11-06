@@ -166,7 +166,7 @@ int calculateMovement() {
       case 5:
       case 8:
         if(prevColor == -1) { //first note or post-spin
-          if(notes[i].type == 5) //noteEnd either ending spin or erronous
+          if(notes[i].type == 5) //noteEnd either ending spin or erroneous
             //TODO: Check for error noteEnd
             break;
           
