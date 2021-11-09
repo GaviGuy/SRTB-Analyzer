@@ -35,6 +35,8 @@ int nMovement = 0;
 int nMovementLeft = 0;
 int nMovementRight = 0;
 int maxScore = 0;
+int nAesRight = 0;
+int nAesLeft = 0;
 float duration;
 
 //transient helper items
@@ -227,19 +229,21 @@ int calculateMovement() {
             some patterns will result in false-positives (repeated 1-3 swaps and related)
             some patterns will result in false-negatives (slider on Wight to Remain, color shenanigans)
           */
-          if(movesSinceMove < 6) {
-            if(prevLane > notes[i].column) {
-              int mov = (prevLane - notes[i].column);
-              nMovementRight += mov;
-              nMovement += mov;
-              movesSinceMove += mov;
-            }
-            else {
-              int mov = (notes[i].column - prevLane);
-              nMovementLeft += mov;
-              nMovement += mov;
-              movesSinceMove += mov;
-            }
+          if(prevLane > notes[i].column) {
+            int mov = (prevLane - notes[i].column);
+            nMovementRight += mov;
+            nMovement += mov;
+            movesSinceMove += mov;
+            if(movesSinceMove > 4) //aesthetic check
+              nAesRight += mov;
+          }
+          else {
+            int mov = (notes[i].column - prevLane);
+            nMovementLeft += mov;
+            nMovement += mov;
+            movesSinceMove += mov;
+            if(movesSinceMove > 4) //aesthetic check
+              nAesLeft += mov;
           }
         }
         if(notes[i].column * side <= -2) { //changed sides, reset aesthetic checks
@@ -412,6 +416,12 @@ int ratioPrintout() {
   printf("Magnitude of movement: %d\n", nMovement);
   printf("Ratio of L:R movement: %d:%d (%.0f:%.0f)\n", nMovementLeft, nMovementRight, roundf((float) nMovementLeft / (float) (nMovementLeft + nMovementRight) * 100), roundf((float) nMovementRight / (float) (nMovementLeft + nMovementRight) * 100));
   printf("\n");
+  int nMoveAdj = nMovement - nAesLeft - nAesRight;
+  int nMoveLeftAdj = nMovementLeft - nAesLeft;
+  int nMoveRightAdj = nMovementRight - nAesRight;
+  printf("Magnitude of movement (adjusted): %d\n", nMoveAdj);
+  printf("Ratio of L:R movement (adjusted): %d:%d (%.0f:%.0f)\n", nMoveLeftAdj, nMoveRightAdj, roundf((float) nMoveLeftAdj / (float) (nMoveLeftAdj + nMoveRightAdj) * 100), roundf((float) nMoveRightAdj / (float) (nMoveLeftAdj + nMoveRightAdj) * 100));
+  printf("\n");
 }
 
 int ratePrintout() {
@@ -419,6 +429,7 @@ int ratePrintout() {
   printf("Avg taps & sliders/second: %f\n", (float) (nTap + nSlider) / duration);
   printf("Avg beats/second:          %f\n", (float) nBeat / duration);
   printf("Avg movement/second:       %f\n", (float) nMovement / duration);
+  printf("Avg mvmt/sec (adjusted):   %f\n", (float) (nMovement - nAesLeft- nAesRight) / duration);
   printf("\n");
 }
 
